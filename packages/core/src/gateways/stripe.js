@@ -7,27 +7,37 @@ class StripeProvider {
     constructor(secretKey) {
         this.stripeInstance = stripeInstance;
     }
-    async createCheckoutSession({ price, currency }) {
+    async createCheckoutSession({ price, currency, name, email, products }) {
         try {
             const session = await stripeInstance.checkout.sessions.create({
                 payment_method_types: ['card'],//to do
-                line_items: [{
-                    price_data: {
-                        currency,
-                        product_data: { name: 'Sample Product' },//to do
-                        unit_amount: price,
-                    },
-                    quantity: 1,//to do
-                }],
+                line_items: products?.map(product => (
+                    {
+                        price_data: {
+                            currency,
+                            product_data: {
+                                name: product.name,
+                                description: product.description,
+                            },
+                            unit_amount: product.price * 100,
+                        },
+                        quantity: product.quantity,
+                    }
+                )),
                 mode: 'payment',
                 // payment_intent_data: {
                 //     capture_method: 'manual',//to capture paymentIntent manually
                 // },
-                success_url: 'https://your-domain.com/success',//to do
-                cancel_url: 'https://your-domain.com/cancel',//to do
+                success_url: `${process.env.REACT_APP_API_URL}/success`,
+                cancel_url: `${process.env.REACT_APP_API_URL}/cancel`,
             });
+
+            const amount = session.amount_total;
+            const orderId = session.id;
+            const url = session.url;
+
             info('Checkout session created successfully');
-            return session;
+            return { session, amount, orderId, url };
         } catch (err) {
             console.error('Stripe Checkout Session Error:', err);
             error('Failed to create Stripe checkout session', 500);

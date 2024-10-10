@@ -1,3 +1,25 @@
-# https://www.robotstxt.org/robotstxt.html
+# robots.txt for UnipayConnect
+
+# Allow all user agents access to the main site
 User-agent: *
 Disallow:
+
+# Disallow crawling of admin or sensitive data
+Disallow: /admin/
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /checkout/
+Disallow: /login/
+Disallow: /register/
+Disallow: /user/
+
+# Prevent access to sensitive files or configuration
+Disallow: /config/
+Disallow: /env/
+Disallow: /node_modules/
+
+# Allow crawling of documentation, if it exists
+Allow: /docs/
+
+# Sitemap location for better crawling efficiency
+Sitemap: https://www.yoursite.com/sitemap.xml

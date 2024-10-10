@@ -1,70 +1,126 @@
-# Getting Started with Create React App
+## Client Setup
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+To install and set up the `unipayconnect/packages/client` on your local machine, follow these steps:
 
-## Available Scripts
+### Prerequisites
 
-In the project directory, you can run:
+1. **Node.js**: Ensure you have Node.js installed on your machine. You can download it from [nodejs.org](https://nodejs.org/).
 
-### `npm start`
+2. **npm**: npm is included with Node.js. You can check if it's installed by running the following command in your terminal:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+   ```bash
+   npm -v
+   ```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Step-by-Step Installation
 
-### `npm test`
+1. **Clone the Repository**:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+First, clone the unipayconnect repository from GitHub:
 
-### `npm run build`
+```bash
+git clone https://github.com/yourusername/unipayconnect.git
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. **Navigate to the Client Directory**:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Change your working directory to the client package:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+cd unipayconnect/packages/client
+```
 
-### `npm run eject`
+3. **Install Dependencies**:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Install the required dependencies using npm:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm install
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+4. **Set Up Environment Variables**:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Create a .env file in the packages/client directory to store your API keys and any other environment variables required for your application:
 
-## Learn More
+```bash
+touch .env
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Add your configuration details:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+REACT_APP_API_URL=http://localhost
+REACT_APP_RAZORPAY_KEY_ID=<your-razorpay-key-id>
+REACT_APP_RAZORPAY_URL='https://checkout.razorpay.com/v1/checkout.js'
 
-### Code Splitting
+5. **Run the Development Server**:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Start the development server to see your client application in action:
 
-### Analyzing the Bundle Size
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+The application should open in your default browser at http://localhost:3000.
 
-### Making a Progressive Web App
+For production, you might want to build the application by running:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```bash
+npm run build
+```
 
-### Advanced Configuration
+## Custom Checkout Page (Frontend)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+UnipayConnect lets you build a custom checkout page like Stripe's. Here’s an example of a form using React Hook Form and Tailwind CSS:
 
-### Deployment
+```jsx
+import { useForm } from "react-hook-form";
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+const CheckoutForm = ({ products, totalAmount }) => {
+  const { register, handleSubmit } = useForm();
 
-### `npm run build` fails to minify
+  const onSubmit = async (data) => {
+    console.log(data);
+    // Add your submit logic here
+  };
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="checkout-form">
+      <div className="col-left">
+        <input {...register("name")} placeholder="Name" className="input" />
+        <input {...register("email")} placeholder="Email" className="input" />
+        <input {...register("amount")} placeholder="Amount" className="input" />
+        {/* Add more fields as necessary */}
+      </div>
+      <div className="col-right">
+        <h2>Order Summary</h2>
+        {products.map((product, index) => (
+          <div key={index}>
+            {product.name} - ${product.price * product.quantity}
+          </div>
+        ))}
+        <div>Total: ${totalAmount}</div>
+      </div>
+      <button type="submit" className="submit-button">
+        Pay Now
+      </button>
+    </form>
+  );
+};
+```
+
+- **Customize Payment Providers (Radio Buttons)**
+  If you want users to select a provider (Stripe, PayPal, Razorpay), you can add radio buttons:
+
+```jsx
+<div>
+  <label>
+    <input {...register("provider")} type="radio" value="stripe" /> Stripe
+  </label>
+  <label>
+    <input {...register("provider")} type="radio" value="paypal" /> PayPal
+  </label>
+  <label>
+    <input {...register("provider")} type="radio" value="razorpay" /> Razorpay
+  </label>
+</div>
+```

@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "UnipayConnect",
+  "name": "unipayconnect- This is a unified payment integration library.",
   "icons": [
     {
       "src": "favicon.ico",

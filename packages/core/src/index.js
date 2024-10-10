@@ -1,6 +1,5 @@
 const { CustomError } = require("./common/errorHandler");
 const { info, error } = require("./common/logger");
-const { client } = require("./config");
 const jwt = require("jsonwebtoken");
 
 class UnipayConnect {
@@ -33,20 +32,23 @@ class UnipayConnect {
         return providers;
     }
     //To create a session with the given provider(s)
-    async createCheckoutSession({ price, currency, providers }) {
+    async createCheckoutSession({ price, currency, providers, name, email, products }) {
         const sessions = await Promise.all(providers?.map(async (provider) => {
             try {
                 const instance = await this.getProvider(provider);
 
                 if (instance && instance.createCheckoutSession) {
-                    const session = await instance.createCheckoutSession({ price, currency });
+                    const data = await instance.createCheckoutSession({ price, currency, name, email, products });
 
-                    if (session) {
+                    if (data) {
                         info(`Checkout session created successfully with provider ${provider}`);
                         return {
                             provider,
                             status: 'success',
-                            sessionData: session,
+                            sessionData: data.session,
+                            amount: data.amount,
+                            orderId: data.orderId,
+                            url: data.url,
                         };
                     } else {
                         return {
@@ -72,19 +74,18 @@ class UnipayConnect {
             }
         }));
 
-        const successfulSessions = sessions.filter(session => session.status === 'success');
+        const successfulSessions = sessions?.filter(session => session.status === 'success');
 
         if (successfulSessions.length > 0) {
             const token = jwt.sign(
-                { sessions: successfulSessions },
+                { name, email, products, sessions: successfulSessions },
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' }//expires in 1 hour
             );
             if (!token) {
                 error('Failed to generate token', new CustomError('Failed to generate token', 400));
             }
-            await client.set(token, JSON.stringify(successfulSessions), 'EX', 3600);//expires in 1 hour
-            return { token, successfulSessions };
+            return { successfulSessions, token };
         } else {
             error('No valid provider found for checkout session', new CustomError('No valid provider found', 400));
             throw new CustomError('No valid provider found for checkout session', 400);
@@ -95,13 +96,14 @@ class UnipayConnect {
             error('Failed to capture token', new CustomError('Failed to capture token', 400));
             throw new CustomError('Failed to capture token', 400);
         }
-        const sessionData = await client.get(token);
 
-        if (!sessionData) {
+        const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+
+        if (!decoded) {
             error('Session data not found', new CustomError('Session data not found', 400));
             throw new CustomError('Session data not found', 400);
         }
-        return JSON.parse(sessionData);
+        return decoded;
     }
     //To capture the payment
     async capturePayment({ providerName, paymentId, amount }) {

@@ -36,9 +36,9 @@ const handleFetchCheckoutSession = async (req, res) => {
         if (!token) {
             throw new CustomError('Token is required', 400);
         }
-        const sessionData = await unipayconnect.initPayment(token);
+        const decoded = await unipayconnect.initPayment(token);
         info(`Session data retrieved successfully`);
-        return res.status(200).json({ session: sessionData });
+        return res.status(200).json({ name: decoded.name, email: decoded.email, products: decoded.products, sessions: decoded.sessions });
     } catch (err) {
         handleError(err, res);
         error('Failed to fetch session data', err);
@@ -134,11 +134,11 @@ const handleRegisterProvider = async (req, res) => {
 
 const handleCreateCheckoutSession = async (req, res) => {
     try {
-        const { price, currency, providers } = req.body;
+        const { price, currency, providers, name, email, products } = req.body;
         if (!price || !currency || !providers) {
             throw new CustomError('Price, currency, and providers are required', 400);
         }
-        const session = await unipayconnect.createCheckoutSession({ price, currency, providers });
+        const session = await unipayconnect.createCheckoutSession({ price, currency, providers, name, email, products });
         return res.status(201).json(session);
     } catch (err) {
         handleError(err, res);

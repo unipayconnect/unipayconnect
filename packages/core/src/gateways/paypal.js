@@ -14,7 +14,7 @@ class PayPalProvider {
     constructor() {
         this.paypalInstance = paypalInstance;
     }
-    async createCheckoutSession({ price, currency }) {
+    async createCheckoutSession({ price, currency, name, email, products }) {
         try {
             const request = new paypalInstance.orders.OrdersCreateRequest();
             request.prefer('return=representation');
@@ -23,14 +23,33 @@ class PayPalProvider {
                 purchase_units: [{
                     amount: {
                         currency_code: currency,
-                        value: price.toString(),
+                        value: price.toString(),// The total order value
+                        breakdown: {
+                            item_total: {
+                                currency_code: currency,
+                                value: price.toString(), // Sum of all product prices
+                            },
+                        },
                     },
+                    items: products?.map(product => ({
+                        name: product.name,
+                        unit_amount: {
+                            currency_code: currency,
+                            value: product.price.toFixed(2), // Price per unit (must be in 2 decimal places)
+                        },
+                        quantity: product.quantity.toString(), // Quantity as string
+                    })),
                 }],
             });
 
             const order = await client.execute(request);
+
+            const amount = order.result.purchase_units[0].amount.value;
+            const orderId = order.result.id;
+            const url = order.result.links?.find(link => link.rel === 'approve').href;
+
             info('Checkout session created successfully');
-            return order.result;
+            return { session: order.result, amount, orderId, url };
         } catch (err) {
             console.error('PayPal Checkout Session Error:', err);
             error('Failed to create PayPal checkout session', 500);

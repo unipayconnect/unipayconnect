@@ -13,7 +13,7 @@ class RazorPayProvider {
     constructor(keyId, keySecret) {
         this.razorpayInstance = razorpayInstance;
     }
-    async createCheckoutSession({ price, currency }) {
+    async createCheckoutSession({ price, currency, name, email, products }) {
         try {
             const options = {
                 amount: price * 100, // Razorpay uses smallest currency unit
@@ -21,8 +21,13 @@ class RazorPayProvider {
                 receipt: `receipt_${Date.now()}`,
             };
             const order = await razorpayInstance.orders.create(options);
+
+            const amount = order.amount;
+            const orderId = order.id;
+            const url = order.receipt;
+
             info('Checkout session created successfully');
-            return order;
+            return { session: order, amount, orderId, url };
         } catch (err) {
             console.error('RazorPay Create Session Error:', err);
             error('Failed to create RazorPay checkout session', 500);
