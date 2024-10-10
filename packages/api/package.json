@@ -31,7 +31,7 @@
   ],
   "author": "Avanishdev",
   "license": "MIT",
-  "description": "API for UnipayConnect Payment Integration Library",
+  "description": "Simplify payment gateway integration with Stripe, PayPal, and Razorpay using UnipayConnect. A unified and developer-friendly solution for secure payments.",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

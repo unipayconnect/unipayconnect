@@ -30,12 +30,11 @@
   ],
   "author": "Avanishdev",
   "license": "MIT",
-  "description": "Methods for UnipayConnect Payment Integration Library",
+  "description": "Simplify payment gateway integration with Stripe, PayPal, and Razorpay using UnipayConnect. A unified and developer-friendly solution for secure payments.",
   "dependencies": {
     "@paypal/checkout-server-sdk": "^1.0.3",
     "axios": "^1.7.4",
     "dotenv": "^16.4.5",
-    "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
     "module-alias": "^2.2.3",
     "razorpay": "^2.9.4",
