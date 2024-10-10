@@ -48,9 +48,11 @@ touch .env
 
 Add your configuration details:
 
+```env
 REACT_APP_API_URL=http://localhost
 REACT_APP_RAZORPAY_KEY_ID=<your-razorpay-key-id>
 REACT_APP_RAZORPAY_URL='https://checkout.razorpay.com/v1/checkout.js'
+```
 
 5. **Run the Development Server**:
 

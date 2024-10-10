@@ -32,6 +32,7 @@ npm install unipayconnect
 
 Create a .env file and add your API keys and connection details:
 
+```env
 STRIPE_SECRET_KEY=<your-stripe-secret-key>
 STRIPE_WEBHOOK_SECRET=<your-stripe-webhook-secret>
 PAYPAL_CLIENT_ID=<your-paypal-client-id>
@@ -45,6 +46,7 @@ JWT_SECRET='<your-jwt-secret>'
 REACT_APP_API_URL=http://localhost
 REACT_APP_RAZORPAY_KEY_ID=<your-razorpay-key-id>
 REACT_APP_RAZORPAY_URL='https://checkout.razorpay.com/v1/checkout.js'
+```
 
 ## How to Use UnipayConnect
 
@@ -79,14 +81,10 @@ const session = await unipayconnect.createCheckoutSession({
 });
 ```
 
-- **.**
-  providers: Name of the provider you want to use (stripe, paypal, or razorpay).
-- **.**
-  price: Total price of the checkout session.
-- **.**
-  currency: Currency code (e.g., 'USD', 'INR').
-- **.**
-  products: Array of product objects containing name, quantity, and price.
+- providers: Name of the provider you want to use (stripe, paypal, or razorpay).
+- price: Total price of the checkout session.
+- currency: Currency code (e.g., 'USD', 'INR').
+- products: Array of product objects containing name, quantity, and price.
 
 -**Capture Payment**
 After a successful checkout, capture the payment:
@@ -99,12 +97,9 @@ const paymentResult = await unipayconnect.capturePayment({
 });
 ```
 
-- **.**
-  providerName: Payment provider (required).
-- **.**
-  paymentId: The ID of the payment (from Stripe/PayPal/Razorpay).
-- **.**
-  amount: Total payment amount (required for Razorpay).
+- providerName: Payment provider (required).
+- paymentId: The ID of the payment (from Stripe/PayPal/Razorpay).
+- amount: Total payment amount (required for Razorpay).
 
 - **Verify Webhook Events**
   Webhooks are crucial for receiving updates from payment providers. Here's how you verify the webhook data:
@@ -217,9 +212,11 @@ touch .env
 
 Add your configuration details:
 
+```env
 REACT_APP_API_URL=http://localhost
 REACT_APP_RAZORPAY_KEY_ID=<your-razorpay-key-id>
 REACT_APP_RAZORPAY_URL='https://checkout.razorpay.com/v1/checkout.js'
+```
 
 5. **Run the Development Server**:
 
@@ -314,7 +311,3 @@ Here are some ideas to get you started:
 - 😄 Pronouns: ...
 - ⚡ Fun fact: ...
   -->
-
-```
-
-```
