@@ -37,6 +37,7 @@ STRIPE_SECRET_KEY=<your-stripe-secret-key>
 STRIPE_WEBHOOK_SECRET=<your-stripe-webhook-secret>
 PAYPAL_CLIENT_ID=<your-paypal-client-id>
 PAYPAL_CLIENT_SECRET=<your-paypal-secret>
+PAYPAL_WEBHOOK_ID=<your-paypal-webhook-id>
 NODE_ENV='sandbox'||'production' for paypal
 RAZORPAY_KEY_ID=<your-razorpay-key-id>
 RAZORPAY_KEY_SECRET=<your-razorpay-secret>
@@ -45,6 +46,10 @@ PORT=<your-port>
 JWT_SECRET='<your-jwt-secret>'
 REACT_APP_API_URL=http://localhost
 REACT_APP_RAZORPAY_KEY_ID=<your-razorpay-key-id>
+REACT_APP_RAZORPAY_KEY_SECRET=<your-razorpay-key-secret>
+REACT_APP_STRIPE_SECRET_KEY=<your-stripe-webhook-secret>
+REACT_APP_PAYPAL_CLIENT_ID=<your-paypal-client-id>
+REACT_APP_PAYPAL_CLIENT_SECRET=<your-paypal-secret>
 REACT_APP_RAZORPAY_URL='https://checkout.razorpay.com/v1/checkout.js'
 ```
 
@@ -53,7 +58,35 @@ REACT_APP_RAZORPAY_URL='https://checkout.razorpay.com/v1/checkout.js'
 - **Initialize UnipayConnect**
   In your backend application, initialize the library like this:
 
-const unipayconnect = require('unipayconnect');
+```javascript
+const unipayconnect = require("unipayconnect");
+// Import the payment providers
+const StripeProvider = require("unipayconnect/packages/core/src/gateways/stripe");
+const PayPalProvider = require("unipayconnect/packages/core/src/gateways/paypal");
+const RazorPayProvider = require("unipayconnect/packages/core/src/gateways/razorpay");
+```
+
+- **Regitser**
+  Register the providers with your credentials like this:
+
+```javascript
+// Register the providers with your credentials
+const stripe = unipayconnect.register(
+  "stripe",
+  new StripeProvider(process.env.REACT_APP_STRIPE_SECRET_KEY)
+);
+const paypal = unipayconnect.register(
+  "paypal",
+  new PayPalProvider(process.env.REACT_APP_PAYPAL_CLIENT_SECRET)
+);
+const razorpay = unipayconnect.register(
+  "razorpay",
+  new RazorPayProvider({
+    key_id: process.env.REACT_APP_RAZORPAY_KEY_ID,
+    key_secret: process.env.REACT_APP_RAZORPAY_KEY_SECRET,
+  })
+);
+```
 
 - **Create Checkout Session**
   You can create a checkout session for Stripe, PayPal, or Razorpay. This example shows how to use it:
@@ -114,6 +147,18 @@ const isValid = unipayconnect.verifyWebhookPayload(
   || req.headers['X-Razorpay-Signature']
 );
 ```
+
+- **Available Methods**
+  Each provider has its own methods for interacting with their API. Here's a quick overview of the common methods available:
+
+  token: Here, refers to token recieved after creating checkout session.
+
+- Stripe: initPayment(token),getProvider(providerName), getAllProviders(), register(providerName,providerInstance), etc.
+- PayPal: initPayment(token),getProvider(providerName), getAllProviders(), register(providerName,providerInstance), etc.
+- Razorpay: initPayment(token),getProvider(providerName), getAllProviders(), register(providerName,providerInstance), etc.
+
+- **Additional Configuration**
+  You can configure additional options such as successUrl, cancelUrl, and more depending on the gateway you're using. I motivate you to play with each provider for more detailed options.
 
 ## API Routes Examples
 
@@ -216,6 +261,10 @@ Add your configuration details:
 REACT_APP_API_URL=http://localhost
 REACT_APP_RAZORPAY_KEY_ID=<your-razorpay-key-id>
 REACT_APP_RAZORPAY_URL='https://checkout.razorpay.com/v1/checkout.js'
+REACT_APP_RAZORPAY_KEY_SECRET=<your-razorpay-key-secret>
+REACT_APP_STRIPE_SECRET_KEY=<your-stripe-webhook-secret>
+REACT_APP_PAYPAL_CLIENT_ID=<your-paypal-client-id>
+REACT_APP_PAYPAL_CLIENT_SECRET=<your-paypal-secret>
 ```
 
 5. **Run the Development Server**:
