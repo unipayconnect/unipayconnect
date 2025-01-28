@@ -6,6 +6,7 @@ module.exports = {
     paypal: {
         clientId: process.env.PAYPAL_CLIENT_ID,
         clientSecret: process.env.PAYPAL_CLIENT_SECRET,
+        webhookId: process.env.PAYPAL_WEBHOOK_ID,
         nodeenv: process.env.NODE_ENV,
     },
     razorpay: {

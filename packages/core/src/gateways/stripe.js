@@ -5,29 +5,39 @@ const stripeInstance = require('stripe')(stripe.secretKey);
 
 class StripeProvider {
     constructor(secretKey) {
-        this.stripeInstance = stripeInstance;
+        this.stripeInstance = require('stripe')(secretKey);
     }
     async createCheckoutSession({ price, currency, name, email, products }) {
         try {
-            const session = await stripeInstance.checkout.sessions.create({
+            const session = await this.stripeInstance.checkout.sessions.create({
                 payment_method_types: ['card'],//to do
-                line_items: products?.map(product => (
-                    {
-                        price_data: {
-                            currency,
-                            product_data: {
-                                name: product.name,
-                                description: product.description,
-                            },
-                            unit_amount: product.price * 100,
-                        },
-                        quantity: product.quantity,
-                    }
-                )),
                 mode: 'payment',
+                line_items: products && products.length > 0 ? products.map(product => ({
+                    price_data: {
+                        currency: currency,
+                        product_data: {
+                            name: product.name,
+                            description: product.description,
+                        },
+                        unit_amount: product.price * 100, // Stripe requires the price in cents
+                    },
+                    quantity: product.quantity,
+                })) : [{
+                    price_data: {
+                        currency: currency,
+                        product_data: {
+                            name: "Sample Product",
+                            description: "Sample description for fallback product",
+                        },
+                        unit_amount: 100,
+                    },
+                    quantity: 1,
+                }], // Provide sample array if no products are provided
                 // payment_intent_data: {
                 //     capture_method: 'manual',//to capture paymentIntent manually
                 // },
+                customer_email: email,
+                customer_name: name,
                 success_url: `${process.env.REACT_APP_API_URL}/success`,
                 cancel_url: `${process.env.REACT_APP_API_URL}/cancel`,
             });
@@ -45,7 +55,7 @@ class StripeProvider {
     }
     async capturePayment(paymentId) {
         try {
-            const paymentIntent = await stripeInstance.paymentIntents.capture(paymentId);
+            const paymentIntent = await this.stripeInstance.paymentIntents.capture(paymentId);
             return paymentIntent;
         } catch (err) {
             console.error('Stripe Payment Capture Error:', err);
@@ -54,7 +64,7 @@ class StripeProvider {
     }
     async verifyWebhookPayload(payload, signature) {
         try {
-            const event = await stripeInstance.webhooks.constructEvent(payload, signature, stripe.webhookSecret);
+            const event = await this.stripeInstance.webhooks.constructEvent(payload, signature, stripe.webhookSecret);
             return event;
         } catch (err) {
             console.error('Stripe Webhook Verification Error:', err);

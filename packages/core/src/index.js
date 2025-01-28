@@ -25,7 +25,7 @@ class UnipayConnect {
     }
     // Internal method to get all providers
     async getAllProviders() {
-        const providers = await this.providers;
+        const providers = await Object.keys(this.providers);
         if (!providers) {
             error(`Providers not found`, new CustomError(`Providers not found`, 404));
         }

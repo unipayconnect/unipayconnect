@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 
 const CheckoutPage = () => {
-    const { register, handleSubmit, formState: { errors }, watch, setError } = useForm();
+    const { register, handleSubmit, formState: { errors }, watch, reset, setError } = useForm();
 
     const [providers, setProviders] = useState([
         'stripe',
@@ -12,7 +12,12 @@ const CheckoutPage = () => {
         'razorpay',
     ]);
 
+    const [currencies, setCurrencies] = useState([
+        'USD', 'INR', 'EUR', 'GBP', 'JPY'
+    ]);
+
     const selectProvider = watch('provider');
+    const selectedCurrency = watch('currency', 'USD');
 
     const [products, setProducts] = useState([]);
 
@@ -32,52 +37,72 @@ const CheckoutPage = () => {
     }, []);
 
     const onSubmit = async (data) => {
+        const apiKeys = {
+            razorpay: {
+                key_id: process.env.REACT_APP_RAZORPAY_KEY_ID,
+                key_secret: process.env.REACT_APP_RAZORPAY_KEY_SECRET
+            },
+            stripe: process.env.REACT_APP_STRIPE_SECRET_KEY,
+            paypal: process.env.REACT_APP_PAYPAL_CLIENT_SECRET
+        };
         try {
+            const body = {
+                providerName: selectProvider,
+                apiKey: apiKeys[selectProvider]
+            }
+            const result = await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/payments/provider/register`, body)
+
             const payload = {
                 price: totalAmount,
-                currency: 'USD',
+                currency: selectedCurrency,
                 providers: [selectProvider],
                 name: data.name,
                 email: data.email,
                 products: products,
             };
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/payments/create-checkout-session`, payload);
-            // Handle redirect/payment flow here...
-            const session = response.data.successfulSessions?.find(session => session.provider === selectProvider);
-            if (session.provider === 'razorpay') {
-                // Frontend Razorpay payment options
-                const razorOptions = {
-                    "key": `${process.env.REACT_APP_RAZORPAY_KEY_ID}`,  // Razorpay Key ID, passed from backend if needed
-                    "amount": session.sessionData.amount,      // In paise, ensure this is calculated correctly
-                    "currency": session.sessionData.currency,  // Set currency
-                    // "name": name,                // Name of the payer
-                    "description": "Transaction",  // Short description
-                    "order_id": session.sessionData.id,        // Razorpay order ID (should be generated from the backend)
-                    "handler": function (response) {
-                        // Handle successful payment response from Razorpay
-                        console.log("Payment ID:", response.razorpay_payment_id);
-                        console.log("Order ID:", response.razorpay_order_id);
-                        console.log("Signature:", response.razorpay_signature);
-                    },
-                    "prefill": {
-                        "name": data.name,    // Pre-fill user’s name
-                        "email": data.email   // Pre-fill user’s email
-                    },
-                    "theme": {
-                        "color": "#3399cc"  // Customize the theme color of Razorpay checkout
-                    }
-                };
 
-                // Initialize Razorpay payment with the options
-                const rzp1 = new window.Razorpay(razorOptions);
+            if (result.data.message) {
+                const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/payments/create-checkout-session`, payload);
+                // Handle redirect/payment flow here...
+                const session = response.data.successfulSessions?.find(session => session.provider === selectProvider);
+                if (session.provider === 'razorpay') {
+                    // Frontend Razorpay payment options
+                    const razorOptions = {
+                        key: `${process.env.REACT_APP_RAZORPAY_KEY_ID}`,  // Razorpay Key ID, passed from backend if needed
+                        amount: session.sessionData.amount,      // In paise, ensure this is calculated correctly
+                        currency: session.sessionData.currency,  // Set currency
+                        // "name": name,                // Name of the payer
+                        description: "Transaction",  // Short description
+                        order_id: session.sessionData.id,        // Razorpay order ID (should be generated from the backend)
+                        handler: async function (response) {
+                            // Handle successful payment response from Razorpay
+                            console.log("Payment ID:", response.razorpay_payment_id);
+                            console.log("Order ID:", response.razorpay_order_id);
+                            console.log("Signature:", response.razorpay_signature);
+                        },
+                        prefill: {
+                            name: data.name,    // Pre-fill user’s name
+                            email: data.email   // Pre-fill user’s email
+                        },
+                        theme: {
+                            "color": "#3399cc"  // Customize the theme color of Razorpay checkout
+                        }
+                    };
 
-                // Start the Razorpay payment process
-                rzp1.open();
-            }
-            else {
-                if (session.url) {
-                    window.location.href = session.url; // Redirect to the payment gateway
+                    // Initialize Razorpay payment with the options
+                    const rzp1 = new window.Razorpay(razorOptions);
+
+                    // Start the Razorpay payment process
+                    rzp1.open();
                 }
+                else {
+                    if (session.url) {
+                        window.location.href = session.url; // Redirect to the payment gateway
+                    }
+                }
+                reset();
+            } else {
+                console.error("Error: Registering provider", selectProvider);
             }
         } catch (error) {
             console.error('Error creating checkout session:', error);
@@ -142,6 +167,22 @@ const CheckoutPage = () => {
                             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
                         </div>
 
+                        {/* Currency Selection */}
+                        <div className="mb-4">
+                            <label className="block text-gray-700 text-sm font-bold mb-2">Currency</label>
+                            <select
+                                {...register('currency', { required: 'Currency is required' })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            >
+                                {currencies?.map((currency) => (
+                                    <option key={currency} value={currency}>
+                                        {currency}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.currency && <p className="text-red-500 text-sm mt-1">{errors.currency.message}</p>}
+                        </div>
+
                         {/* Payment Provider Selection */}
                         <div className="mb-4">
                             <label className="block text-gray-700 text-sm font-bold mb-2">Payment Provider</label>
@@ -178,7 +219,7 @@ const CheckoutPage = () => {
                     <h3 className="text-2xl font-semibold mb-4">Order Summary</h3>
 
                     {/* Wrapping the product list and total in a flex column container */}
-                    <div className="flex flex-col h-64">
+                    <div className="flex flex-col h-[80%]">
 
                         {/* Product list container with scroll */}
                         <div className="flex-grow border-t border-gray-300 pt-4 overflow-y-scroll">
@@ -231,7 +272,9 @@ const CheckoutPage = () => {
                         {/* Fixed total at the bottom */}
                         <div className="border-t border-gray-300 pt-4 flex justify-between sticky bottom-0 bg-gray-100">
                             <span className="text-gray-700 font-semibold">Total:</span>
-                            <span className="font-bold">${totalAmount.toFixed(2)}</span>
+                            <span className="font-bold">
+                                {selectedCurrency} {totalAmount.toFixed(2)}
+                            </span>
                         </div>
                     </div>
                 </div>

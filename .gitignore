@@ -6,6 +6,9 @@ yarn-error.log*
 package-lock.json
 yarn.lock
 
+# packages
+*.tgz
+
 # Logs
 logs/
 *.log

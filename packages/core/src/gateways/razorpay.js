@@ -19,7 +19,12 @@ class RazorPayProvider {
                 amount: price * 100, // Razorpay uses smallest currency unit
                 currency,
                 receipt: `receipt_${Date.now()}`,
+                notes: {
+                    name: name, // Add customer name in notes
+                    email: email, // Add customer email in notes
+                },
             };
+
             const order = await razorpayInstance.orders.create(options);
 
             const amount = order.amount;
@@ -35,7 +40,7 @@ class RazorPayProvider {
     }
     async capturePayment(paymentId, amount) {
         try {
-            const payment = razorpayInstance.payments.capture(paymentId, amount);
+            const payment = await razorpayInstance.payments.capture(paymentId, amount, "INR");
             return payment;
         } catch (err) {
             console.error('Razorpay Payment Capture Error:', err);
