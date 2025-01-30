@@ -153,9 +153,11 @@ const isValid = unipayconnect.verifyWebhookPayload(
 
   token: Here, refers to token recieved after creating checkout session.
 
-- Stripe: initPayment(token),getProvider(providerName), getAllProviders(), register(providerName,providerInstance), etc.
-- PayPal: initPayment(token),getProvider(providerName), getAllProviders(), register(providerName,providerInstance), etc.
-- Razorpay: initPayment(token),getProvider(providerName), getAllProviders(), register(providerName,providerInstance), etc.
+  - Stripe: initPayment(token),getProvider(providerName), getAllProviders(), register(providerName,providerInstance), etc.
+
+  - PayPal: initPayment(token),getProvider(providerName), getAllProviders(), register(providerName,providerInstance), etc.
+
+  - Razorpay: initPayment(token),getProvider(providerName), getAllProviders(), register(providerName,providerInstance), etc.
 
 - **Additional Configuration**
   You can configure additional options such as successUrl, cancelUrl, and more depending on the gateway you're using. I motivate you to play with each provider for more detailed options.
@@ -344,7 +346,7 @@ const CheckoutForm = ({ products, totalAmount }) => {
 
 UnipayConnect simplifies payments across multiple providers. Whether it's creating checkout sessions, capturing payments, or verifying webhooks, it provides an easy way to integrate and manage multiple payment gateways without getting into their complex APIs.
 
-## Feel free to contribute or raise issues in the repository!
+## Feel free to contribute or raise issues in the repository! 🧡
 
 <!--
 **unipayconnect/unipayconnect** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
