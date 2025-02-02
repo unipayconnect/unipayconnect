@@ -1,6 +1,6 @@
 {
   "name": "unipayconnect",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "<!--\r **unipayconnect/unipayconnect** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.",
   "main": "index.js",
   "scripts": {
