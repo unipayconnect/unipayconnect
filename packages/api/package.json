@@ -32,6 +32,11 @@
   "author": "Avanishdev",
   "license": "MIT",
   "description": "Simplify payment gateway integration with Stripe, PayPal, and Razorpay using UnipayConnect. A unified and developer-friendly solution for secure payments.",
+  "_moduleAliases": {
+    "@core": "../../packages/core/src",
+    "@api": "../../packages/api/src",
+    "@client": "../../packages/client/src"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -41,6 +46,8 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
+    "module-alias": "^2.2.3",
+    "ngrok": "^5.0.0-beta.2",
     "nodemon": "^3.1.4",
     "supertest": "^7.0.0"
   }

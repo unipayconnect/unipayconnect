@@ -1,5 +1,5 @@
-const unipayconnect = require('../../../core/src');
-const { CustomError } = require('../../../core/src/common/errorHandler');
+const unipayconnect = require('@core');
+const { CustomError } = require('@core/common/errorHandler');
 
 const validateProvider = async (req, res, next) => {
     const providers = await unipayconnect.providers;

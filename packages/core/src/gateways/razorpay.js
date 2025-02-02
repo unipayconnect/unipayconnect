@@ -15,8 +15,16 @@ class RazorPayProvider {
     }
     async createCheckoutSession({ price, currency, name, email, products }) {
         try {
+            let adjustedAmount = price * 100;// Razorpay uses smallest currency unit
+
+            // Handle 3-decimal currencies (KWD, BHD, JOD, OMR, TND)
+            const threeDecimalCurrencies = ['KWD', 'BHD', 'JOD', 'OMR', 'TND'];
+            if (threeDecimalCurrencies.includes(currency.toUpperCase())) {
+                adjustedAmount = Math.round(price * 1000 / 10) * 10; // Ensure last digit is 0
+            }
+
             const options = {
-                amount: price * 100, // Razorpay uses smallest currency unit
+                amount: adjustedAmount,
                 currency,
                 receipt: `receipt_${Date.now()}`,
                 notes: {
@@ -38,9 +46,9 @@ class RazorPayProvider {
             error('Failed to create RazorPay checkout session', 500);
         }
     }
-    async capturePayment(paymentId, amount) {
+    async capturePayment(paymentId, amount, currency) {
         try {
-            const payment = await razorpayInstance.payments.capture(paymentId, amount, "INR");
+            const payment = await razorpayInstance.payments.capture(paymentId, amount * 100, currency);
             return payment;
         } catch (err) {
             console.error('Razorpay Payment Capture Error:', err);
@@ -54,6 +62,10 @@ class RazorPayProvider {
                 .digest('hex');
             if (expectedSignature !== signature) {
                 throw new CustomError('Invalid Razorpay webhook signature');
+            }
+            const event = req.body.event;
+            if (event === 'payment.captured') {
+                console.log(`Payment captured: ${req.body.payload.payment.entity.amount}`);
             }
             return JSON.parse(payload);
         } catch (err) {

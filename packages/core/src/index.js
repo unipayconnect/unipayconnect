@@ -106,12 +106,12 @@ class UnipayConnect {
         return decoded;
     }
     //To capture the payment
-    async capturePayment({ providerName, paymentId, amount }) {
+    async capturePayment({ providerName, paymentId, amount, currency }) {
         const provider = await this.getProvider(providerName);
         if (provider && provider.capturePayment) {
             info(`Capturing payment with provider ${providerName}`);
             if (providerName === "razorpay") {
-                return await provider.capturePayment(paymentId, amount);
+                return await provider.capturePayment(paymentId, amount, currency);
             } else {
                 return await provider.capturePayment(paymentId);
             }

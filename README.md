@@ -196,10 +196,12 @@ app.post("/api/v1/payments/capture", async (req, res) => {
 - **Verify Webhook (Example API Route)**
 
 ```javascript
-app.post("/api/v1/webhooks", (req, res) => {
+app.post("/api/v1/payments//verify-webhook", (req, res) => {
   const providerName = req.headers["provider-name"];
   const signature =
-    req.headers["stripe-signature"] || req.headers["paypal-transmission-sig"];
+    req.headers["stripe-signature"] ||
+    req.headers["paypal-transmission-sig"] ||
+    req.headers["X-Razorpay-Signature"];
   const verified = unipayconnect.verifyWebhookPayload(
     providerName,
     req.body,
@@ -208,6 +210,30 @@ app.post("/api/v1/webhooks", (req, res) => {
   res.status(verified ? 200 : 400).json({ verified });
 });
 ```
+
+- **Webhook Setup Guide**
+
+1. **Generate a Webhook URL for Local Development**: For local development, you need a publicly accessible URL to receive webhook events. You can use ngrok or localtunnel for this.
+
+- Using ngrok (Recommended)
+
+  1. **Install ngrok (if not already installed)**:
+
+  ```bash
+  npm install -g ngrok
+  ```
+
+  2. **Start ngrok on your local server port (e.g., 8080)**:
+
+  ```bash
+  ngrok http 8080
+  ```
+
+  3. Copy the Forwarding URL provided by ngrok (e.g., https://your-ngrok-subdomain.ngrok-free.app).
+
+  4. Once you have the publicly accessible URL, add it to your payment provider's webhook settings.
+
+  You're all set! Your local environment is now ready to receive webhooks.
 
 ## Client Setup
 
@@ -341,6 +367,10 @@ const CheckoutForm = ({ products, totalAmount }) => {
   </label>
 </div>
 ```
+
+## Postman Collection
+
+Use our Postman collection to test API endpoints: [Postman](https://www.postman.com/fucturicas-team/workspace/open-source/collection/32911344-6daf008f-14e8-4633-99cb-332668e1d953?action=share&creator=32911344&active-environment=32911344-7a7e74e8-18c2-4f92-b46f-cddc06d423d4)
 
 ## Conclusion
 

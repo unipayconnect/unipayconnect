@@ -101,6 +101,7 @@ const CheckoutPage = () => {
                     }
                 }
                 reset();
+                setProducts([]);
             } else {
                 console.error("Error: Registering provider", selectProvider);
             }

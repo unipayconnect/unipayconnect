@@ -1,9 +1,9 @@
-const StripeProvider = require("../../../core/src/gateways/stripe");
-const PayPalProvider = require("../../../core/src/gateways/paypal");
-const RazorPayProvider = require("../../../core/src/gateways/razorpay");
-const unipayconnect = require('../../../core/src');
-const { handleError, CustomError } = require('../../../core/src/common/errorHandler');
-const { info, error } = require('../../../core/src/common/logger');
+const StripeProvider = require("@core/gateways/stripe");
+const PayPalProvider = require("@core/gateways/paypal");
+const RazorPayProvider = require("@core/gateways/razorpay");
+const unipayconnect = require('@core');
+const { handleError, CustomError } = require('@core/common/errorHandler');
+const { info, error } = require('@core/common/logger');
 const util = require("util");
 
 const handleGetProvider = async (req, res) => {
@@ -148,11 +148,11 @@ const handleCreateCheckoutSession = async (req, res) => {
 
 const handleCapturePayment = async (req, res) => {
     try {
-        const { providerName, paymentId, amount } = req.body;
+        const { providerName, paymentId, amount, currency } = req.body;
         if (!providerName || !paymentId) {
             throw new CustomError('Provider name and payment ID are required', 400);
         }
-        const result = await unipayconnect.capturePayment({ providerName, paymentId, amount });
+        const result = await unipayconnect.capturePayment({ providerName, paymentId, amount, currency });
         return res.status(200).json(result);
     } catch (err) {
         handleError(err, res);
@@ -162,11 +162,26 @@ const handleCapturePayment = async (req, res) => {
 
 const handleVerifyWebhook = async (req, res) => {
     try {
-        const providerName = req.headers['provider-name'];
+        let providerName = req.headers['provider-name'];
         const payload = req.body;
         const signature = req.headers['paypal-transmission-sig'] || req.headers['stripe-signature'] || req.headers['X-Razorpay-Signature'];
 
-        if (!providerName || !payload || !signature) {
+        // Validation for provider name
+        if (!providerName) {
+            const userAgent = req.headers["user-agent"];
+
+            if (userAgent.includes("PayPal")) {
+                providerName = "paypal";
+            } else if (userAgent.includes("Stripe")) {
+                providerName = "stripe";
+            } else if (userAgent.includes("Razorpay")) {
+                providerName = "razorpay";
+            } else {
+                throw new CustomError("Provider name is required", 400);
+            }
+        }
+
+        if (!payload || !signature) {
             throw new CustomError('Provider name, payload, and signature are required', 400);
         }
 

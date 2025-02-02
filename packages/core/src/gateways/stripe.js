@@ -37,7 +37,7 @@ class StripeProvider {
                 //     capture_method: 'manual',//to capture paymentIntent manually
                 // },
                 customer_email: email,
-                customer_name: name,
+                // customer_name: name,
                 success_url: `${process.env.REACT_APP_API_URL}/success`,
                 cancel_url: `${process.env.REACT_APP_API_URL}/cancel`,
             });
@@ -65,6 +65,16 @@ class StripeProvider {
     async verifyWebhookPayload(payload, signature) {
         try {
             const event = await this.stripeInstance.webhooks.constructEvent(payload, signature, stripe.webhookSecret);
+            // Handle the event
+            switch (event.type) {
+                case 'payment_intent.succeeded':
+                    const paymentIntentSucceeded = event.data.object;
+                    // Then define and call a function to handle the event payment_intent.succeeded
+                    break;
+                // ... handle other event types
+                default:
+                    console.log(`Unhandled event type ${event.type}`);
+            }
             return event;
         } catch (err) {
             console.error('Stripe Webhook Verification Error:', err);
