@@ -61,9 +61,9 @@ REACT_APP_RAZORPAY_URL='https://checkout.razorpay.com/v1/checkout.js'
 ```javascript
 const unipayconnect = require("unipayconnect");
 // Import the payment providers
-const StripeProvider = require("unipayconnect/packages/core/src/gateways/stripe");
-const PayPalProvider = require("unipayconnect/packages/core/src/gateways/paypal");
-const RazorPayProvider = require("unipayconnect/packages/core/src/gateways/razorpay");
+const StripeProvider = require("@unipayconnect/core/gateways/stripe");
+const PayPalProvider = require("@unipayconnect/core/gateways/paypal");
+const RazorPayProvider = require("@unipayconnect/core/gateways/razorpay");
 ```
 
 - **Regitser**

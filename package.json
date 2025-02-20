@@ -29,12 +29,21 @@
     "developer-friendly payment library",
     "secure checkout with Stripe, PayPal, Razorpay"
   ],
+  "_moduleAliases": {
+    "@unipayconnect/core": "./packages/core/src",
+    "@unipayconnect/api": "./packages/api/src",
+    "@unipayconnect/client": "./packages/client/src"
+  },
   "author": "Avanishdev",
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.9.1",
     "eslint": "^9.9.1",
     "eslint-plugin-react": "^7.35.2",
-    "globals": "^15.9.0"
+    "globals": "^15.9.0",
+    "module-alias": "^2.2.3"
+  },
+  "dependencies": {
+    "unipayconnect": "^1.0.3"
   }
 }
