@@ -368,6 +368,9 @@ const CheckoutForm = ({ products, totalAmount }) => {
 </div>
 ```
 
+- **Test Card Numbers**
+  You can find respective test card numbers of payment providers on their website itself.
+
 ## Postman Collection
 
 Use our Postman collection to test API endpoints: [Postman](https://www.postman.com/fucturicas-team/workspace/open-source/collection/32911344-6daf008f-14e8-4633-99cb-332668e1d953?action=share&creator=32911344&active-environment=32911344-7a7e74e8-18c2-4f92-b46f-cddc06d423d4)

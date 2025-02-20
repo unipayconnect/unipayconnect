@@ -8,7 +8,7 @@ const validateProvider = async (req, res, next) => {
         throw new CustomError('No providers specified or invalid format', 400);
     }
 
-    const unregisteredProviders = providers.filter(provider => !unipayconnect.getProvider(provider));
+    const unregisteredProviders = providers?.filter(provider => !unipayconnect.getProvider(provider));
 
     if (unregisteredProviders.length > 0) {
         throw new CustomError(`The following providers are not registered: ${unregisteredProviders.join(', ')}`, 400);
